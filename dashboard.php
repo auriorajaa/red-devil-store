@@ -5,6 +5,37 @@ session_start();
 // Access user session data
 $user_id = $_SESSION['user_id'];
 $user_name = $_SESSION['user_name'];
+
+// Include the database configuration
+include('config.php');
+
+$queryMonthlySales = "SELECT sum(quantity) AS monthly_sales, MONTH(transaction_date) AS sale_month
+                      FROM table_transaction
+                      WHERE user_id = ? AND DATE(transaction_date) >= CURDATE() - INTERVAL 6 MONTH
+                      GROUP BY MONTH(transaction_date)
+                      ORDER BY MONTH(transaction_date) DESC";
+
+
+$stmtMonthlySales = mysqli_stmt_init($conn);
+
+if (mysqli_stmt_prepare($stmtMonthlySales, $queryMonthlySales)) {
+    mysqli_stmt_bind_param($stmtMonthlySales, "i", $user_id);
+    mysqli_stmt_execute($stmtMonthlySales);
+    $resultMonthlySales = mysqli_stmt_get_result($stmtMonthlySales);
+
+    // Initialize monthly sales data array
+    $monthlySalesData = array();
+
+    while ($rowMonthlySales = mysqli_fetch_assoc($resultMonthlySales)) {
+        $monthlySalesData[] = $rowMonthlySales['monthly_sales'];
+    }
+} else {
+    echo "Error: " . mysqli_error($conn);
+}
+
+mysqli_stmt_close($stmtMonthlySales);
+
+mysqli_close($conn);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -108,86 +139,7 @@ $user_name = $_SESSION['user_name'];
                         <p style="opacity: 80%; font-size: 17px;" class="hero-subtitle">In Partnership with Manchester United</p>
                     </div>
 
-                    <!-- Cards for Information -->
-                    <div class="row mt-5">
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Products</h5>
-                                    <?php
-                                    // Include the database configuration
-                                    include('config.php');
 
-                                    // Query to get the total number of products
-                                    $queryProducts = "SELECT COUNT(*) AS total_products FROM table_product WHERE user_id = ?";
-                                    $stmtProducts = mysqli_stmt_init($conn);
-
-                                    if (mysqli_stmt_prepare($stmtProducts, $queryProducts)) {
-                                        mysqli_stmt_bind_param($stmtProducts, "i", $user_id);
-                                        mysqli_stmt_execute($stmtProducts);
-                                        $resultProducts = mysqli_stmt_get_result($stmtProducts);
-                                        $rowProducts = mysqli_fetch_assoc($resultProducts);
-                                        echo "<p class='card-text'>" . $rowProducts['total_products'] . "</p>";
-                                    } else {
-                                        echo "Error: " . mysqli_error($conn);
-                                    }
-
-                                    mysqli_stmt_close($stmtProducts);
-                                    ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Customers</h5>
-                                    <?php
-                                    // Query to get the total number of customers
-                                    $queryCustomers = "SELECT COUNT(*) AS total_customers FROM table_customer WHERE user_id = ?";
-                                    $stmtCustomers = mysqli_stmt_init($conn);
-
-                                    if (mysqli_stmt_prepare($stmtCustomers, $queryCustomers)) {
-                                        mysqli_stmt_bind_param($stmtCustomers, "i", $user_id);
-                                        mysqli_stmt_execute($stmtCustomers);
-                                        $resultCustomers = mysqli_stmt_get_result($stmtCustomers);
-                                        $rowCustomers = mysqli_fetch_assoc($resultCustomers);
-                                        echo "<p class='card-text'>" . $rowCustomers['total_customers'] . "</p>";
-                                    } else {
-                                        echo "Error: " . mysqli_error($conn);
-                                    }
-
-                                    mysqli_stmt_close($stmtCustomers);
-                                    ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Transactions</h5>
-                                    <?php
-                                    // Query to get the total number of transactions
-                                    $queryTransactions = "SELECT COUNT(*) AS total_transactions FROM table_transaction WHERE user_id = ?";
-                                    $stmtTransactions = mysqli_stmt_init($conn);
-
-                                    if (mysqli_stmt_prepare($stmtTransactions, $queryTransactions)) {
-                                        mysqli_stmt_bind_param($stmtTransactions, "i", $user_id);
-                                        mysqli_stmt_execute($stmtTransactions);
-                                        $resultTransactions = mysqli_stmt_get_result($stmtTransactions);
-                                        $rowTransactions = mysqli_fetch_assoc($resultTransactions);
-                                        echo "<p class='card-text'>" . $rowTransactions['total_transactions'] . "</p>";
-                                    } else {
-                                        echo "Error: " . mysqli_error($conn);
-                                    }
-
-                                    mysqli_stmt_close($stmtTransactions);
-                                    ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </section>
 
@@ -272,6 +224,87 @@ $user_name = $_SESSION['user_name'];
                 </div>
             </section>
         </article>
+        <!-- Cards for Information -->
+        <div class="row mt-5 text-center">
+            <div class="col-md-3 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Products</h5>
+                        <?php
+                        // Include the database configuration
+                        include('config.php');
+
+                        // Query to get the total number of products
+                        $queryProducts = "SELECT COUNT(*) AS total_products FROM table_product WHERE user_id = ?";
+                        $stmtProducts = mysqli_stmt_init($conn);
+
+                        if (mysqli_stmt_prepare($stmtProducts, $queryProducts)) {
+                            mysqli_stmt_bind_param($stmtProducts, "i", $user_id);
+                            mysqli_stmt_execute($stmtProducts);
+                            $resultProducts = mysqli_stmt_get_result($stmtProducts);
+                            $rowProducts = mysqli_fetch_assoc($resultProducts);
+                            echo "<p class='card-text'>" . $rowProducts['total_products'] . "</p>";
+                        } else {
+                            echo "Error: " . mysqli_error($conn);
+                        }
+
+                        mysqli_stmt_close($stmtProducts);
+                        ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Customers</h5>
+                        <?php
+                        // Query to get the total number of customers
+                        $queryCustomers = "SELECT COUNT(*) AS total_customers FROM table_customer WHERE user_id = ?";
+                        $stmtCustomers = mysqli_stmt_init($conn);
+
+                        if (mysqli_stmt_prepare($stmtCustomers, $queryCustomers)) {
+                            mysqli_stmt_bind_param($stmtCustomers, "i", $user_id);
+                            mysqli_stmt_execute($stmtCustomers);
+                            $resultCustomers = mysqli_stmt_get_result($stmtCustomers);
+                            $rowCustomers = mysqli_fetch_assoc($resultCustomers);
+                            echo "<p class='card-text'>" . $rowCustomers['total_customers'] . "</p>";
+                        } else {
+                            echo "Error: " . mysqli_error($conn);
+                        }
+
+                        mysqli_stmt_close($stmtCustomers);
+                        ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Transactions</h5>
+                        <?php
+                        // Query to get the total number of transactions
+                        $queryTransactions = "SELECT COUNT(*) AS total_transactions FROM table_transaction WHERE user_id = ?";
+                        $stmtTransactions = mysqli_stmt_init($conn);
+
+                        if (mysqli_stmt_prepare($stmtTransactions, $queryTransactions)) {
+                            mysqli_stmt_bind_param($stmtTransactions, "i", $user_id);
+                            mysqli_stmt_execute($stmtTransactions);
+                            $resultTransactions = mysqli_stmt_get_result($stmtTransactions);
+                            $rowTransactions = mysqli_fetch_assoc($resultTransactions);
+                            echo "<p class='card-text'>" . $rowTransactions['total_transactions'] . "</p>";
+                        } else {
+                            echo "Error: " . mysqli_error($conn);
+                        }
+
+                        mysqli_stmt_close($stmtTransactions);
+                        ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Chart -->
         <div class="row mt-5 justify-content-center">
             <div class="col-md-9">
@@ -280,7 +313,7 @@ $user_name = $_SESSION['user_name'];
         </div>
         <div class="row mt-5 justify-content-center">
             <div class="col-md-9">
-                <canvas id="chartDailySales"></canvas>
+                <canvas id="chartMonthlySales"></canvas>
             </div>
         </div>
 
@@ -288,6 +321,15 @@ $user_name = $_SESSION['user_name'];
         <div class="row mt-5 justify-content-center">
             <div class="col-md-9">
                 <canvas id="chartMonthlyCustomers"></canvas>
+            </div>
+        </div>
+
+        <div class="row mt-5 justify-content-center">
+            <div class="col-md-6">
+                <canvas id="barChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <canvas id="lineChart"></canvas>
             </div>
         </div>
 
@@ -422,165 +464,30 @@ $user_name = $_SESSION['user_name'];
         });
     </script>
 
-
     <script>
-        // Get data from PHP variables for daily sales
-        var dailySalesData = <?php
-                                $queryDailySales = "SELECT DATE(transaction_date) AS date, SUM(quantity) AS total_quantity
-                         FROM table_transaction
-                         WHERE user_id = ?
-                         GROUP BY DATE(transaction_date)";
-                                $stmtDailySales = mysqli_stmt_init($conn);
-
-                                if (mysqli_stmt_prepare($stmtDailySales, $queryDailySales)) {
-                                    mysqli_stmt_bind_param($stmtDailySales, "i", $user_id);
-                                    mysqli_stmt_execute($stmtDailySales);
-                                    $resultDailySales = mysqli_stmt_get_result($stmtDailySales);
-                                    $dataDailySales = array();
-
-                                    while ($rowDailySales = mysqli_fetch_assoc($resultDailySales)) {
-                                        $dataDailySales[$rowDailySales['date']] = $rowDailySales['total_quantity'];
-                                    }
-
-                                    echo json_encode($dataDailySales);
-                                } else {
-                                    echo "[]";
-                                }
-
-                                mysqli_stmt_close($stmtDailySales);
-                                ?>;
-
-        // Convert date strings to a more readable format
-        var formattedDailySalesData = Object.keys(dailySalesData).map(function(date) {
-            return {
-                date: new Date(date).toLocaleDateString(),
-                total_quantity: dailySalesData[date]
-            };
-        });
-
-        // Create a bar chart for daily sales
-        var ctxDailySales = document.getElementById('chartDailySales').getContext('2d');
-        var myChartDailySales = new Chart(ctxDailySales, {
-            type: 'bar',
+        // Create a line chart for monthly sales
+        var ctxLineMonthly = document.getElementById('chartMonthlySales').getContext('2d');
+        var lineChartMonthly = new Chart(ctxLineMonthly, {
+            type: 'line',
             data: {
-                labels: formattedDailySalesData.map(data => data.date),
+                labels: ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'],
                 datasets: [{
-                    label: 'Total Quantity',
-                    data: formattedDailySalesData.map(data => data.total_quantity),
-                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
+                    label: 'Monthly Sales',
+                    data: <?php echo json_encode(array_reverse($monthlySalesData)); ?>,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    fill: false
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
                 scales: {
                     y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Total Quantity',
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date',
-                            font: {
-                                size: 14
-                            }
-                        }
+                        beginAtZero: true
                     }
                 }
             }
         });
     </script>
-
-    <!-- Add this script for monthly customers chart -->
-    <script>
-        // Get data from PHP variables for monthly customers
-        var monthlyCustomersData = <?php
-                                    $queryMonthlyCustomers = "SELECT DATE_FORMAT(transaction_date, '%Y-%m') AS month, COUNT(DISTINCT customer_id) AS total_customers
-                             FROM table_transaction
-                             WHERE user_id = ?
-                             GROUP BY month";
-                                    $stmtMonthlyCustomers = mysqli_stmt_init($conn);
-
-                                    if (mysqli_stmt_prepare($stmtMonthlyCustomers, $queryMonthlyCustomers)) {
-                                        mysqli_stmt_bind_param($stmtMonthlyCustomers, "i", $user_id);
-                                        mysqli_stmt_execute($stmtMonthlyCustomers);
-                                        $resultMonthlyCustomers = mysqli_stmt_get_result($stmtMonthlyCustomers);
-                                        $dataMonthlyCustomers = array();
-
-                                        while ($rowMonthlyCustomers = mysqli_fetch_assoc($resultMonthlyCustomers)) {
-                                            $dataMonthlyCustomers[$rowMonthlyCustomers['month']] = $rowMonthlyCustomers['total_customers'];
-                                        }
-
-                                        echo json_encode($dataMonthlyCustomers);
-                                    } else {
-                                        echo "[]";
-                                    }
-
-                                    mysqli_stmt_close($stmtMonthlyCustomers);
-                                    ?>;
-
-        // Convert date strings to a more readable format
-        var formattedMonthlyCustomersData = Object.keys(monthlyCustomersData).map(function(month) {
-            return {
-                month: new Date(month + '-01').toLocaleDateString('en-US', {
-                    month: 'long',
-                    year: 'numeric'
-                }),
-                total_customers: monthlyCustomersData[month]
-            };
-        });
-
-        // Create a bar chart for monthly customers
-        var ctxMonthlyCustomers = document.getElementById('chartMonthlyCustomers').getContext('2d');
-        var myChartMonthlyCustomers = new Chart(ctxMonthlyCustomers, {
-            type: 'bar',
-            data: {
-                labels: formattedMonthlyCustomersData.map(data => data.month),
-                datasets: [{
-                    label: 'Total Customers',
-                    data: formattedMonthlyCustomersData.map(data => data.total_customers),
-                    backgroundColor: 'rgba(255, 206, 86, 0.5)',
-                    borderColor: 'rgba(255, 206, 86, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Total Customers',
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Month',
-                            font: {
-                                size: 14
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    </script>
-
 
     <!-- 
     - ionicon link

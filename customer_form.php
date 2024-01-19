@@ -2,6 +2,7 @@
 // Load file autoload.php
 require 'vendor/autoload.php';
 
+
 // Include librari PhpSpreadsheet
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
@@ -34,8 +35,8 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
     <div class="container mt-3">
         <h3 class="mt-3">Form Import Data</h3>
 
-        <form method="post" action="form.php" enctype="multipart/form-data" class="mt-3">
-            <a href="product_list.php" class="btn btn-secondary">Kembali</a>
+        <form method="post" action="customer_form.php" enctype="multipart/form-data" class="mt-3">
+            <a href="customer_list.php" class="btn btn-secondary">Kembali</a>
             <br><br>
 
             <div class="custom-file">
@@ -73,7 +74,7 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
                 $sheet = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
 
                 // Buat sebuah tag form untuk proses import data ke database
-                echo "<form method='post' action='import.php'>";
+                echo "<form method='post' action='customer_import.php'>";
 
                 // Disini kita buat input type hidden yg isinya adalah nama file excel yg diupload
                 // ini tujuannya agar ketika import, kita memilih file yang tepat (sesuai yg diupload)
@@ -89,11 +90,10 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
                     <th colspan='6' class='text-center'>Preview Data</th>
                 </tr>
                 <tr>
-                    <th>Product Name</th>
-                    <th>Product Image</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Stock</th>
+                    <th>Customer Name</th>
+                    <th>Membership Category</th>
+                    <th>Customer Gender</th>
+                    <th>Customer Phone</th>
                     <th>User ID</th>
                 </tr>";
 
@@ -101,15 +101,14 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
                 $kosong = 0;
                 foreach ($sheet as $row) { // Lakukan perulangan dari data yang ada di excel
                     // Ambil data pada excel sesuai Kolom
-                    $product_name = $row['A']; // Ambil data nama
-                    $product_image = $row['B']; // Ambil data jenis kelamin
-                    $product_category = $row['C']; // Ambil data telepon
-                    $product_price = $row['D']; // Ambil data alamat
-                    $product_stock = $row['E']; // Ambil data alamat
-                    $user_id = $row['F']; // Ambil data alamat
+                    $customer_name = $row['A']; // Ambil data nama
+                    $membership_category = $row['B']; // Ambil data jenis kelamin
+                    $customer_gender = $row['C']; // Ambil data telepon
+                    $customer_phone = $row['D']; // Ambil data alamat
+                    $user_id = $row['E']; // Ambil data alamat
 
                     // Cek jika semua data tidak diisi
-                    if ($product_name == "" && $product_image == "" && $product_category == "" && $product_price == "" && $product_stock == "" && $user_id == "")
+                    if ($customer_name == "" && $membership_category == "" && $customer_gender == "" && $customer_phone == "" && $user_id == "")
                         continue; // Lewat data pada baris ini (masuk ke looping selanjutnya / baris selanjutnya)
 
                     // Cek $numrow apakah lebih dari 1
@@ -117,24 +116,22 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
                     // Jadi dilewat saja, tidak usah diimport
                     if ($numrow > 1) {
                         // Validasi apakah semua data telah diisi
-                        $product_name_td = (!empty($product_name)) ? "" : " style='background: #E07171;'"; // Jika NIS kosong, beri warna merah
-                        $product_image_td = (!empty($product_image)) ? "" : " style='background: #E07171;'"; // Jika Nama kosong, beri warna merah
-                        $product_category_td = (!empty($product_category)) ? "" : " style='background: #E07171;'"; // Jika Jenis Kelamin kosong, beri warna merah
-                        $product_price_td = (!empty($product_price)) ? "" : " style='background: #E07171;'"; // Jika Telepon kosong, beri warna merah
-                        $product_stock_td = (!empty($product_stock)) ? "" : " style='background: #E07171;'"; // Jika Alamat kosong, beri warna merah
+                        $customer_name_td = (!empty($customer_name)) ? "" : " style='background: #E07171;'"; // Jika NIS kosong, beri warna merah
+                        $membership_category_td = (!empty($membership_category)) ? "" : " style='background: #E07171;'"; // Jika Nama kosong, beri warna merah
+                        $customer_gender_td = (!empty($customer_gender)) ? "" : " style='background: #E07171;'"; // Jika Jenis Kelamin kosong, beri warna merah
+                        $customer_phone_td = (!empty($customer_phone)) ? "" : " style='background: #E07171;'"; // Jika Telepon kosong, beri warna merah
                         $user_id_td = (!empty($user_id)) ? "" : " style='background: #E07171;'"; // Jika Alamat kosong, beri warna merah
 
                         // Jika salah satu data ada yang kosong
-                        if ($product_name == "" or $product_image == "" or $product_category == "" or $product_price == "" or $product_stock == "" or $user_id == "") {
+                        if ($customer_gender == "" or $membership_category == "" or $customer_gender == "" or $customer_phone == "" or $user_id == "") {
                             $kosong++; // Tambah 1 variabel $kosong
                         }
 
                         echo "<tr>";
-                        echo "<td" . $product_name_td . ">" . $product_name . "</td>";
-                        echo "<td" . $product_image_td . ">" . $product_image . "</td>";
-                        echo "<td" . $product_category_td . ">" . $product_category . "</td>";
-                        echo "<td" . $product_price_td . ">" . $product_price . "</td>";
-                        echo "<td" . $product_stock_td . ">" . $product_stock . "</td>";
+                        echo "<td" . $customer_name_td . ">" . $customer_name . "</td>";
+                        echo "<td" . $membership_category_td . ">" . $membership_category . "</td>";
+                        echo "<td" . $customer_gender_td . ">" . $customer_gender . "</td>";
+                        echo "<td" . $customer_phone_td . ">" . $customer_phone . "</td>";
                         echo "<td" . $user_id_td . ">" . $user_id . "</td>";
                         echo "</tr>";
                     }
@@ -161,7 +158,7 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
                     echo "<hr>";
 
                     // Buat sebuah tombol untuk mengimport data ke database
-                    echo "<button type='submit' name='import'>Import</button>";
+                    echo "<button type='submit' name='customer_import'>Import</button>";
                 }
 
                 echo "</form>";
