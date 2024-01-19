@@ -127,6 +127,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
                 <input type="search" class="form-control" placeholder="Search Data..." />
                 <div class="input-group-append"></div>
             </div>
+            <!-- Add export button -->
+
+            <a href="transaction_form.php">Import Data</a><br><br>
         </section>
         <section class="table__body">
             <table class="table table-striped">

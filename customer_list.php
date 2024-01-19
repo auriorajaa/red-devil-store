@@ -36,6 +36,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
 }
+
+// Check if the export button is clicked
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['export_csv'])) {
+    // Fetch products for the logged-in user
+    $query = "SELECT * FROM table_customer WHERE user_id = ?";
+    $stmt = mysqli_stmt_init($conn);
+
+    if (mysqli_stmt_prepare($stmt, $query)) {
+        mysqli_stmt_bind_param($stmt, "i", $user_id);
+        mysqli_stmt_execute($stmt);
+
+        $result = mysqli_stmt_get_result($stmt);
+
+        // Check if there are products
+        if (mysqli_num_rows($result) > 0) {
+            $csvFileName = "customer_list.csv";
+            $csvFile = fopen($csvFileName, 'w');
+
+            // Add CSV header
+            fputcsv($csvFile, array('Id', 'Customer Name', 'Membership Category', 'Gender', 'Phone'));
+
+            while ($row = mysqli_fetch_assoc($result)) {
+                // Add product data to CSV
+                fputcsv($csvFile, array($row['customer_id'], $row['customer_name'], $row['membership_category'], $row['customer_gender'], $row['customer_phone']));
+            }
+
+            fclose($csvFile);
+
+            // Set headers for download
+            header('Content-Type: application/csv');
+            header('Content-Disposition: attachment; filename="' . $csvFileName . '"');
+            readfile($csvFileName);
+            exit();
+        } else {
+            echo "No products found for export.";
+        }
+    } else {
+        echo "Error: " . mysqli_error($conn);
+    }
+
+    // Close the statement and connection
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+}
 ?>
 
 <!DOCTYPE html>
@@ -127,6 +171,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
                 <input type="search" class="form-control" placeholder="Search Data..." />
                 <div class="input-group-append"></div>
             </div>
+            <!-- Add export button -->
+            <form method="post">
+                <button type="submit" name="export_csv" class="btn btn-success">Export to CSV</button>
+            </form>
+            <a href="customer_form.php">Import Data</a><br><br>
         </section>
         <section class="table__body">
             <table class="table table-striped">
