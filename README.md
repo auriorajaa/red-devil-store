@@ -17,12 +17,20 @@ Welcome to my PHP CRUD project, crafted for my 3rd-semester final assignment. Th
 ![image](https://github.com/auriorajaa/red-devil-store/assets/108510729/be3481c2-c760-4869-98f1-5b4792b76e24)
 
 - **Hero Section Banner:** Engage users with a visually appealing hero section banner.
+  ![image](https://github.com/auriorajaa/red-devil-store/assets/108510729/4e2ea8af-2f9b-4b07-b783-95aa28acf003)
+
 - **Product List with Images:** Showcase products vividly for an enhanced user experience.
+  ![image](https://github.com/auriorajaa/red-devil-store/assets/108510729/4e5ac166-8e51-4774-8005-e1ad96d6e4b3)
+
 - **Data Metrics:**
+  ![image](https://github.com/auriorajaa/red-devil-store/assets/108510729/b4370e13-a3e5-4164-b42a-46cb62cb2521)
+
   - Number of Products 📦
   - Total Customers 👥
   - Total Transactions 💰
 - **Visualizations:**
+  ![image](https://github.com/auriorajaa/red-devil-store/assets/108510729/23380b5e-6918-4029-a287-0ec3e1eac8f9)
+
   - Chart 📊
   - Bar Chart 📈
   - Line Chart 📉
